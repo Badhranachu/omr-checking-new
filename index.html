@@ -3,496 +3,511 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OMR Scanner Pro | Premium Interface</title>
-    <!-- Modern Typography -->
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>Universal OMR Scanner</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #050505;
-            --container-bg: rgba(255, 255, 255, 0.03);
-            --border-color: rgba(255, 255, 255, 0.08);
-            --text-primary: #ffffff;
-            --text-secondary: #a1a1aa;
-            --accent-glow-1: rgba(99, 102, 241, 0.15); /* Indigo */
-            --accent-glow-2: rgba(168, 85, 247, 0.15); /* Purple */
-            --accent: #818cf8;
-            --hover-bg: rgba(255, 255, 255, 0.05);
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --border: #334155;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            font-family: 'Inter', sans-serif;
         }
 
         body {
-            font-family: 'Outfit', sans-serif;
-            background-color: var(--bg-color);
+            background-color: var(--bg-primary);
             color: var(--text-primary);
             min-height: 100vh;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: center;
-            overflow-x: hidden;
-            position: relative;
+            padding: 2rem;
         }
 
-        /* Ambient glowing orbs in background */
-        body::before, body::after {
-            content: '';
-            position: absolute;
-            width: 40vw;
-            height: 40vw;
-            border-radius: 50%;
-            filter: blur(120px);
-            z-index: -1;
-            pointer-events: none;
-            animation: float 10s ease-in-out infinite alternate;
-        }
-        
-        body::before {
-            top: -10%;
-            left: -10%;
-            background: var(--accent-glow-1);
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
         }
 
-        body::after {
-            bottom: -10%;
-            right: -10%;
-            background: var(--accent-glow-2);
-            animation-delay: -5s;
-        }
-
-        @keyframes float {
-            0% { transform: translateY(0px) scale(0.9); }
-            100% { transform: translateY(30px) scale(1.1); }
+        p.subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            text-align: center;
+            font-size: 1.1rem;
         }
 
         .container {
-            width: 90%;
-            max-width: 1000px;
-            background: var(--container-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 24px;
-            padding: 3rem;
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
-            animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+            width: 100%;
+            max-width: 1200px;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
         }
 
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(40px); }
-            to { opacity: 1; transform: translateY(0); }
+        @media (min-width: 992px) {
+            .container {
+                grid-template-columns: 400px 1fr;
+            }
         }
 
-        .header {
-            text-align: center;
-            margin-bottom: 2.5rem;
+        .panel {
+            background-color: var(--bg-secondary);
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border);
         }
 
-        .header h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            letter-spacing: -1px;
+        .panel-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Controls */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
             margin-bottom: 0.5rem;
-            background: linear-gradient(135deg, #fff 0%, #a1a1aa 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .header p {
             color: var(--text-secondary);
-            font-weight: 300;
-            font-size: 1.1rem;
+            font-size: 0.9rem;
+            font-weight: 500;
         }
 
-        /* Upload Zone */
-        .upload-zone {
-            border: 2px dashed var(--border-color);
-            border-radius: 16px;
-            padding: 4rem 2rem;
+        select {
+            width: 100%;
+            background-color: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            outline: none;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        select:focus {
+            border-color: var(--accent);
+        }
+
+        /* Dropzone */
+        .dropzone {
+            border: 2px dashed var(--border);
+            border-radius: 1rem;
+            padding: 3rem 2rem;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s ease;
-            position: relative;
-            background: rgba(0,0,0,0.2);
-            overflow: hidden;
-        }
-
-        .upload-zone:hover, .upload-zone.dragover {
-            border-color: var(--accent);
-            background: var(--hover-bg);
-            transform: scale(1.02);
-            box-shadow: 0 0 30px rgba(129, 140, 248, 0.1);
-        }
-
-        .upload-zone svg {
-            width: 64px;
-            height: 64px;
-            fill: var(--text-secondary);
-            margin-bottom: 1rem;
-            transition: fill 0.3s ease, transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        .upload-zone:hover svg {
-            fill: var(--accent);
-            transform: translateY(-5px);
-        }
-
-        .upload-zone h3 {
-            font-size: 1.25rem;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-        }
-        
-        .upload-zone p { color: var(--text-secondary); font-size: 0.95rem; }
-
-        #file-input { display: none; }
-
-        /* Loader */
-        .loader-container {
-            display: none;
+            background-color: rgba(30, 41, 59, 0.5);
+            display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 4rem 0;
-            animation: fadeIn 0.4s ease;
+            min-height: 250px;
         }
 
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        .spinner {
-            width: 60px;
-            height: 60px;
-            border: 3px solid var(--border-color);
-            border-top: 3px solid var(--accent);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 1.5rem;
+        .dropzone:hover, .dropzone.dragover {
+            border-color: var(--accent);
+            background-color: rgba(59, 130, 246, 0.1);
         }
 
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .dropzone svg {
+            width: 48px;
+            height: 48px;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            transition: color 0.3s;
+        }
 
-        /* Results Area */
+        .dropzone:hover svg, .dropzone.dragover svg {
+            color: var(--accent);
+        }
+
+        .dropzone p {
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .dropzone .primary-text {
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .hidden-input {
+            display: none;
+        }
+
+        .btn {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .btn:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .btn:disabled {
+            background-color: var(--bg-tertiary);
+            color: var(--text-secondary);
+            cursor: not-allowed;
+        }
+
+        /* Results Layout */
         .results-container {
             display: none;
-            animation: slideUp 0.6s ease backwards;
+            flex-direction: column;
+            gap: 2rem;
         }
 
-        .results-grid {
+        .results-container.active {
+            display: flex;
+        }
+
+        .metrics-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
             margin-bottom: 2rem;
         }
 
-        .result-image-card, .data-card, .answers-card {
-            background: rgba(255,255,255,0.02);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
+        .metric-card {
+            background-color: var(--bg-tertiary);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+
+        .metric-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .metric-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .content-split {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        @media (min-width: 1200px) {
+            .content-split {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .image-preview {
+            width: 100%;
+            border-radius: 0.75rem;
+            border: 1px solid var(--border);
             overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #000;
+            position: relative;
+        }
+
+        .image-preview img {
+            max-width: 100%;
+            max-height: 800px;
+            object-fit: contain;
+            display: block;
+        }
+
+        /* Questions Grid */
+        .questions-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .questions-table th {
+            background-color: var(--bg-tertiary);
+            color: var(--text-secondary);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .questions-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            background-color: var(--bg-secondary);
+            font-weight: 500;
+        }
+
+        .questions-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .q-number {
+            color: var(--text-secondary);
+            width: 80px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .badge.valid {
+            background-color: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.5);
+        }
+
+        .badge.rejected {
+            background-color: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.5);
+        }
+
+        .badge.empty {
+            background-color: rgba(148, 163, 184, 0.2);
+            color: var(--text-secondary);
+            border: 1px solid rgba(148, 163, 184, 0.5);
+        }
+
+        /* Loader */
+        .loader-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(4px);
             display: flex;
             flex-direction: column;
-        }
-
-        .card-header {
-            padding: 1rem 1.5rem;
-            border-bottom: 1px solid var(--border-color);
-            background: rgba(0,0,0,0.2);
-            font-weight: 500;
-            font-size: 0.9rem;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            color: var(--text-secondary);
-        }
-
-        .image-wrapper {
-            padding: 1rem;
-            display: flex;
             align-items: center;
             justify-content: center;
-            flex: 1;
+            border-radius: 0.75rem;
+            z-index: 10;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
         }
 
-        .image-wrapper img {
-            max-width: 100%;
-            max-height: 500px;
-            border-radius: 8px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            transition: transform 0.3s ease;
+        .loader-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--bg-tertiary);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .questions-scroll {
+            max-height: 800px;
+            overflow-y: auto;
+            border-radius: 0.75rem;
         }
         
-        .image-wrapper img:hover {
-            transform: scale(1.02);
+        .questions-scroll::-webkit-scrollbar {
+            width: 8px;
+        }
+        .questions-scroll::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+        .questions-scroll::-webkit-scrollbar-thumb {
+            background: var(--bg-tertiary);
+            border-radius: 4px;
         }
 
-        .data-list {
-            padding: 1rem;
-            overflow-y: auto;
-            max-height: 500px;
-        }
-
-        .data-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.75rem 1rem;
-            border-bottom: 1px solid rgba(255,255,255,0.03);
-            transition: background 0.2s;
-        }
-
-        .data-item:hover {
-            background: rgba(255,255,255,0.05);
-            border-radius: 6px;
-        }
-
-        .data-item strong {
-            color: var(--text-secondary);
-            font-weight: 400;
-        }
-
-        .data-item span {
-            font-family: monospace;
-            font-size: 1.1rem;
-            color: var(--text-primary);
-            font-weight: 600;
-        }
-
-        /* Answers Grid Table */
-        .answers-card {
-            margin-bottom: 2rem;
-        }
-
-        .answers-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .answers-table thead th {
-            padding: 0.75rem 1rem;
-            text-align: left;
-            font-size: 0.8rem;
-            font-weight: 500;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            color: var(--text-secondary);
-            border-bottom: 1px solid var(--border-color);
-            background: rgba(0,0,0,0.15);
-        }
-
-        .answers-table tbody tr {
-            transition: background 0.2s;
-        }
-
-        .answers-table tbody tr:nth-child(even) {
-            background: rgba(255,255,255,0.02);
-        }
-
-        .answers-table tbody tr:hover {
-            background: rgba(255,255,255,0.05);
-        }
-
-        .answers-table td {
-            padding: 0.65rem 1rem;
-            border-bottom: 1px solid rgba(255,255,255,0.03);
-            font-size: 0.95rem;
-        }
-
-        .answers-table td:first-child {
-            color: var(--text-secondary);
-            font-weight: 500;
-            width: 100px;
-        }
-
-        .answers-table td:last-child {
-            font-family: monospace;
-            font-weight: 600;
-            font-size: 1.05rem;
-        }
-
-        .answer-marked {
-            color: #34d399;
-        }
-
-        .answer-blank {
-            color: var(--text-secondary);
-            font-style: italic;
-        }
-
-        .answer-rejected {
-            color: #f87171;
-            font-weight: 600;
-        }
-
-        .answers-scroll {
-            overflow-y: auto;
-            max-height: 400px;
-        }
-
-        .btn-reset {
-            display: block;
-            width: 100%;
-            padding: 1rem;
-            background: var(--text-primary);
-            color: var(--bg-color);
-            border: none;
-            border-radius: 12px;
-            font-family: inherit;
-            font-size: 1.1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 0 4px 15px rgba(255,255,255,0.1);
-        }
-
-        .btn-reset:hover {
-            transform: translateY(-2px);
-            background: var(--accent);
+        /* Error Toast */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background-color: var(--danger);
             color: white;
-            box-shadow: 0 8px 25px rgba(129, 140, 248, 0.4);
-        }
-
-        /* Options Selector */
-        .options-selector {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.75rem;
-            margin-bottom: 1.5rem;
             padding: 1rem 1.5rem;
-            background: rgba(0,0,0,0.25);
-            border: 1px solid var(--border-color);
-            border-radius: 14px;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -2px rgba(0,0,0,0.2);
+            transform: translateY(150%);
+            transition: transform 0.3s ease;
+            z-index: 100;
         }
 
-        .options-selector label {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            font-weight: 400;
-            white-space: nowrap;
+        .toast.show {
+            transform: translateY(0);
         }
 
-        .option-btn-group {
-            display: flex;
-            gap: 0;
-            border-radius: 10px;
-            overflow: hidden;
-            border: 1px solid var(--border-color);
-        }
-
-        .option-btn {
-            padding: 0.5rem 1.25rem;
-            background: rgba(255,255,255,0.03);
-            color: var(--text-secondary);
-            border: none;
-            font-family: inherit;
-            font-size: 0.9rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            border-right: 1px solid var(--border-color);
-        }
-
-        .option-btn:last-child {
-            border-right: none;
-        }
-
-        .option-btn:hover {
-            background: rgba(255,255,255,0.08);
-            color: var(--text-primary);
-        }
-
-        .option-btn.active {
-            background: var(--accent);
-            color: white;
-            font-weight: 600;
-        }
-
-        @media (max-width: 768px) {
-            .results-grid { grid-template-columns: 1fr; }
-            .container { padding: 2rem 1.5rem; }
-        }
     </style>
 </head>
 <body>
 
+    <h1>Universal OMR Scanner</h1>
+    <p class="subtitle">Dynamic grid detection • Perspective correction • Any template</p>
+
     <div class="container">
-        <div class="header">
-            <h1>OMR Scanner <span style="color: var(--accent)">Pro</span></h1>
-            <p>Intelligent, fast optical mark recognition pipeline.</p>
-        </div>
-
-        <div class="options-selector" id="options-selector">
-            <label>Options per Question:</label>
-            <div class="option-btn-group">
-                <button class="option-btn" data-val="3" onclick="setOptions(3)">3 (A–C)</button>
-                <button class="option-btn active" data-val="4" onclick="setOptions(4)">4 (A–D)</button>
-                <button class="option-btn" data-val="5" onclick="setOptions(5)">5 (A–E)</button>
+        <!-- Configuration & Upload Panel -->
+        <div class="panel" style="align-self: start;">
+            <div class="panel-title">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                Scan Configuration
             </div>
+
+            <div class="form-group">
+                <label for="num_options">Options per Question</label>
+                <select id="num_options">
+                    <option value="3">3 Options (A, B, C)</option>
+                    <option value="4" selected>4 Options (A, B, C, D)</option>
+                    <option value="5">5 Options (A, B, C, D, E)</option>
+                </select>
+            </div>
+
+            <div class="dropzone" id="dropzone">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                <p class="primary-text" id="file-name">Click or drag image here</p>
+                <p>Supports JPG, PNG</p>
+                <input type="file" id="file-input" class="hidden-input" accept="image/*">
+            </div>
+
+            <button class="btn" id="scan-btn" disabled>Scan Sheet</button>
         </div>
 
-        <div class="upload-zone" id="drop-zone">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11zM8 15.01l1.41 1.41L11 14.84V19h2v-4.16l1.59 1.59L16 15.01 12.01 11 8 15.01z"/>
-            </svg>
-            <h3>Upload OMR Sheet</h3>
-            <p>Drag and drop image here or click to browse</p>
-            <input type="file" id="file-input" accept="image/jpeg, image/png, image/jpg">
-        </div>
+        <!-- Results Panel -->
+        <div class="panel" style="position: relative;">
+            <div class="loader-overlay" id="loader">
+                <div class="spinner"></div>
+                <p>Analyzing OMR Sheet...</p>
+            </div>
 
-        <div class="loader-container" id="loader">
-            <div class="spinner"></div>
-            <h3>Analyzing Document...</h3>
-            <p style="color: var(--text-secondary); margin-top: 5px; font-size: 0.9rem;">Applying CV pipeline and evaluating template.</p>
-        </div>
+            <!-- Empty State -->
+            <div id="empty-state" style="text-align: center; padding: 4rem 2rem; color: var(--text-secondary);">
+                <svg style="width: 64px; height: 64px; opacity: 0.5; margin-bottom: 1rem;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+                <h2>No Results Yet</h2>
+                <p>Upload and scan an OMR sheet to see the analysis details.</p>
+            </div>
 
-        <div class="results-container" id="results-view">
-            <div class="results-grid">
-                <div class="result-image-card">
-                    <div class="card-header">Processed Image</div>
-                    <div class="image-wrapper">
-                        <img id="result-img" src="" alt="Evaluated OMR Sheet">
+            <!-- Results Data -->
+            <div class="results-container" id="results-view">
+                
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-value" id="val-total">-</div>
+                        <div class="metric-label">Total Bubbles</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="val-marked">-</div>
+                        <div class="metric-label">Marked</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="val-unmarked">-</div>
+                        <div class="metric-label">Unmarked</div>
                     </div>
                 </div>
-                <div class="data-card">
-                    <div class="card-header">Scan Statistics</div>
-                    <div class="data-list" id="data-list">
-                        <!-- Data populated via JS -->
+
+                <div class="metric-card" style="margin-top: -1rem; margin-bottom: 1rem; background-color: var(--bg-secondary);">
+                    <div class="metric-label">Viewport Status</div>
+                    <div class="metric-value" style="font-size: 1.2rem; color: var(--accent);" id="val-viewport">Checking...</div>
+                </div>
+
+                <div class="content-split">
+                    <!-- Image Preview -->
+                    <div class="image-preview">
+                        <img id="result-img" src="" alt="Scanned OMR result">
+                    </div>
+
+                    <!-- Question Data -->
+                    <div class="questions-scroll">
+                        <table class="questions-table">
+                            <thead>
+                                <tr>
+                                    <th class="q-number">Q. No</th>
+                                    <th>Detected Answer</th>
+                                </tr>
+                            </thead>
+                            <tbody id="questions-tbody">
+                                <!-- Populated via JS -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
+
             </div>
-            <div class="answers-card" id="answers-card" style="display:none;">
-                <div class="card-header">Answer Sheet — Question Mapping</div>
-                <div class="answers-scroll">
-                    <table class="answers-table">
-                        <thead>
-                            <tr>
-                                <th>Question</th>
-                                <th>Marked Answer(s)</th>
-                            </tr>
-                        </thead>
-                        <tbody id="answers-tbody">
-                            <!-- Rows populated via JS -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <button class="btn-reset" id="reset-btn">Scan Another Document</button>
         </div>
     </div>
 
-    <script>
-        const dropZone = document.getElementById('drop-zone');
-        const fileInput = document.getElementById('file-input');
-        const loader = document.getElementById('loader');
-        const resultsView = document.getElementById('results-view');
-        const dataList = document.getElementById('data-list');
-        const resultImg = document.getElementById('result-img');
-        const resetBtn = document.getElementById('reset-btn');
+    <!-- Error Toast -->
+    <div class="toast" id="toast">An error occurred while scanning.</div>
 
-        // Drag & Drop handlers
+    <script>
+        const dropzone = document.getElementById('dropzone');
+        const fileInput = document.getElementById('file-input');
+        const fileName = document.getElementById('file-name');
+        const scanBtn = document.getElementById('scan-btn');
+        const loader = document.getElementById('loader');
+        const emptyState = document.getElementById('empty-state');
+        const resultsView = document.getElementById('results-view');
+        const toast = document.getElementById('toast');
+
+        // Drag & Drop Handlers
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, preventDefaults, false);
+            dropzone.addEventListener(eventName, preventDefaults, false);
         });
 
         function preventDefaults(e) {
@@ -501,20 +516,20 @@
         }
 
         ['dragenter', 'dragover'].forEach(eventName => {
-            dropZone.addEventListener(eventName, () => dropZone.classList.add('dragover'), false);
+            dropzone.addEventListener(eventName, () => dropzone.classList.add('dragover'), false);
         });
 
         ['dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, () => dropZone.classList.remove('dragover'), false);
+            dropzone.addEventListener(eventName, () => dropzone.classList.remove('dragover'), false);
         });
 
-        dropZone.addEventListener('drop', (e) => {
-            const dt = e.dataTransfer;
-            const files = dt.files;
+        dropzone.addEventListener('drop', (e) => {
+            let dt = e.dataTransfer;
+            let files = dt.files;
             handleFiles(files);
         });
 
-        dropZone.addEventListener('click', () => {
+        dropzone.addEventListener('click', () => {
             fileInput.click();
         });
 
@@ -522,124 +537,105 @@
             handleFiles(this.files);
         });
 
-        resetBtn.addEventListener('click', resetUI);
+        let currentFile = null;
 
-        async function handleFiles(files) {
-            if (files.length === 0) return;
-            const file = files[0];
-            
-            // Validate file type
-            if (!file.type.match('image.*')) {
-                alert('Please upload an image file (JPG, PNG)');
-                return;
+        function handleFiles(files) {
+            if (files.length > 0) {
+                currentFile = files[0];
+                fileName.textContent = currentFile.name;
+                scanBtn.disabled = false;
+                
+                // Show local preview (optional, un-analyzed)
+                // const reader = new FileReader();
+                // reader.onload = (e) => { document.getElementById('result-img').src = e.target.result; };
+                // reader.readAsDataURL(currentFile);
             }
+        }
 
-            // Update UI State
-            dropZone.style.display = 'none';
-            document.getElementById('options-selector').style.display = 'none';
-            loader.style.display = 'flex';
+        // Scan Action
+        scanBtn.addEventListener('click', async () => {
+            if (!currentFile) return;
+
+            const numOptions = document.getElementById('num_options').value;
 
             const formData = new FormData();
-            formData.append('file', file);
-            formData.append('num_options', selectedOptions);
+            formData.append('file', currentFile);
+            formData.append('num_options', parseInt(numOptions));
 
+            loader.classList.add('active');
+            
             try {
                 const response = await fetch('/scan', {
                     method: 'POST',
                     body: formData
                 });
-                
+
                 const json = await response.json();
-                
-                loader.style.display = 'none';
-                
+
                 if (json.success) {
-                    renderResults(json.data, json.questions, json.image);
+                    displayResults(json);
                 } else {
-                    alert('Error Processing Document: ' + json.error);
-                    resetUI();
+                    showError(json.error || 'Failed to analyze the image.');
                 }
-            } catch (error) {
-                console.error(error);
-                alert('Network Error occurred while uploading.');
-                loader.style.display = 'none';
-                resetUI();
+            } catch (err) {
+                showError('Network error or server unreachable.');
+                console.error(err);
+            } finally {
+                loader.classList.remove('active');
             }
-        }
+        });
 
-        function renderResults(dataDict, questionsDict, imageData) {
-            dataList.innerHTML = '';
-            
-            // Set image
-            resultImg.src = imageData || '';
-            
-            // Render scan statistics
-            for (const [key, value] of Object.entries(dataDict)) {
-                const item = document.createElement('div');
-                item.className = 'data-item';
-                item.innerHTML = `
-                    <strong>${key}</strong>
-                    <span>${value === '' || value === null ? '-' : value}</span>
+        function displayResults(data) {
+            emptyState.style.display = 'none';
+            resultsView.classList.add('active');
+
+            // Set Image
+            document.getElementById('result-img').src = data.image;
+
+            // Set Metrics
+            document.getElementById('val-total').textContent = data.data['Total Bubbles'];
+            document.getElementById('val-marked').textContent = data.data['Marked Bubbles'];
+            document.getElementById('val-unmarked').textContent = data.data['Unmarked Bubbles'];
+            document.getElementById('val-viewport').textContent = data.data['Viewport Locked'];
+
+            // Populate Questions
+            const tbody = document.getElementById('questions-tbody');
+            tbody.innerHTML = '';
+
+            // Sort questions properly (Q1, Q2, ..., Q10, etc instead of string sort)
+            const questionKeys = Object.keys(data.questions).sort((a, b) => {
+                const numA = parseInt(a.replace('Q', ''));
+                const numB = parseInt(b.replace('Q', ''));
+                return numA - numB;
+            });
+
+            questionKeys.forEach(qKey => {
+                const ans = data.questions[qKey];
+                
+                let badgeClass = 'valid';
+                if (ans.startsWith('Rejected')) {
+                    badgeClass = 'rejected';
+                } else if (ans === '—') {
+                    badgeClass = 'empty';
+                }
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="q-number">${qKey}</td>
+                    <td><span class="badge ${badgeClass}">${ans}</span></td>
                 `;
-                dataList.appendChild(item);
-            }
-            
-            // Render question-answer table
-            const answersCard = document.getElementById('answers-card');
-            const answersTbody = document.getElementById('answers-tbody');
-            answersTbody.innerHTML = '';
-            
-            if (questionsDict && Object.keys(questionsDict).length > 0) {
-                answersCard.style.display = 'flex';
-                
-                // Sort questions numerically
-                const sortedKeys = Object.keys(questionsDict).sort((a, b) => {
-                    const numA = parseInt(a.replace('Q', ''));
-                    const numB = parseInt(b.replace('Q', ''));
-                    return numA - numB;
-                });
-                
-                for (const qKey of sortedKeys) {
-                    const answer = questionsDict[qKey];
-                    const tr = document.createElement('tr');
-                    const isBlank = answer === '—' || answer === '' || answer === null;
-                    const isRejected = answer && answer.startsWith('Rejected');
-                    let cssClass = 'answer-marked';
-                    let display = answer;
-                    if (isBlank) { cssClass = 'answer-blank'; display = 'Not answered'; }
-                    else if (isRejected) { cssClass = 'answer-rejected'; }
-                    tr.innerHTML = `
-                        <td>${qKey}</td>
-                        <td class="${cssClass}">${display}</td>
-                    `;
-                    answersTbody.appendChild(tr);
-                }
-            } else {
-                answersCard.style.display = 'none';
-            }
-            
-            resultsView.style.display = 'block';
-        }
-
-        let selectedOptions = 4;  // default
-
-        function setOptions(n) {
-            selectedOptions = n;
-            document.querySelectorAll('.option-btn').forEach(btn => {
-                btn.classList.toggle('active', parseInt(btn.dataset.val) === n);
+                tbody.appendChild(tr);
             });
         }
 
-        function resetUI() {
-            fileInput.value = '';
-            resultsView.style.display = 'none';
-            dropZone.style.display = 'block';
-            document.getElementById('options-selector').style.display = 'flex';
-            resultImg.src = '';
-            dataList.innerHTML = '';
-            document.getElementById('answers-tbody').innerHTML = '';
-            document.getElementById('answers-card').style.display = 'none';
+        function showError(msg) {
+            toast.textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
         }
+
     </script>
 </body>
 </html>
