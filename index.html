@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OMR Scanner Pro | Premium Interface</title>
+    <!-- Modern Typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #050505;
+            --container-bg: rgba(255, 255, 255, 0.03);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --text-primary: #ffffff;
+            --text-secondary: #a1a1aa;
+            --accent-glow-1: rgba(99, 102, 241, 0.15); /* Indigo */
+            --accent-glow-2: rgba(168, 85, 247, 0.15); /* Purple */
+            --accent: #818cf8;
+            --hover-bg: rgba(255, 255, 255, 0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Ambient glowing orbs in background */
+        body::before, body::after {
+            content: '';
+            position: absolute;
+            width: 40vw;
+            height: 40vw;
+            border-radius: 50%;
+            filter: blur(120px);
+            z-index: -1;
+            pointer-events: none;
+            animation: float 10s ease-in-out infinite alternate;
+        }
+        
+        body::before {
+            top: -10%;
+            left: -10%;
+            background: var(--accent-glow-1);
+        }
+
+        body::after {
+            bottom: -10%;
+            right: -10%;
+            background: var(--accent-glow-2);
+            animation-delay: -5s;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px) scale(0.9); }
+            100% { transform: translateY(30px) scale(1.1); }
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            background: var(--container-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 3rem;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+            animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #fff 0%, #a1a1aa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-weight: 300;
+            font-size: 1.1rem;
+        }
+
+        /* Upload Zone */
+        .upload-zone {
+            border: 2px dashed var(--border-color);
+            border-radius: 16px;
+            padding: 4rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            background: rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .upload-zone:hover, .upload-zone.dragover {
+            border-color: var(--accent);
+            background: var(--hover-bg);
+            transform: scale(1.02);
+            box-shadow: 0 0 30px rgba(129, 140, 248, 0.1);
+        }
+
+        .upload-zone svg {
+            width: 64px;
+            height: 64px;
+            fill: var(--text-secondary);
+            margin-bottom: 1rem;
+            transition: fill 0.3s ease, transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .upload-zone:hover svg {
+            fill: var(--accent);
+            transform: translateY(-5px);
+        }
+
+        .upload-zone h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .upload-zone p { color: var(--text-secondary); font-size: 0.95rem; }
+
+        #file-input { display: none; }
+
+        /* Loader */
+        .loader-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 0;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 3px solid var(--border-color);
+            border-top: 3px solid var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1.5rem;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Results Area */
+        .results-container {
+            display: none;
+            animation: slideUp 0.6s ease backwards;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .result-image-card, .data-card, .answers-card {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(0,0,0,0.2);
+            font-weight: 500;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+        }
+
+        .image-wrapper {
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+        }
+
+        .image-wrapper img {
+            max-width: 100%;
+            max-height: 500px;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transition: transform 0.3s ease;
+        }
+        
+        .image-wrapper img:hover {
+            transform: scale(1.02);
+        }
+
+        .data-list {
+            padding: 1rem;
+            overflow-y: auto;
+            max-height: 500px;
+        }
+
+        .data-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            transition: background 0.2s;
+        }
+
+        .data-item:hover {
+            background: rgba(255,255,255,0.05);
+            border-radius: 6px;
+        }
+
+        .data-item strong {
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+
+        .data-item span {
+            font-family: monospace;
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        /* Answers Grid Table */
+        .answers-card {
+            margin-bottom: 2rem;
+        }
+
+        .answers-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .answers-table thead th {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            font-size: 0.8rem;
+            font-weight: 500;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(0,0,0,0.15);
+        }
+
+        .answers-table tbody tr {
+            transition: background 0.2s;
+        }
+
+        .answers-table tbody tr:nth-child(even) {
+            background: rgba(255,255,255,0.02);
+        }
+
+        .answers-table tbody tr:hover {
+            background: rgba(255,255,255,0.05);
+        }
+
+        .answers-table td {
+            padding: 0.65rem 1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            font-size: 0.95rem;
+        }
+
+        .answers-table td:first-child {
+            color: var(--text-secondary);
+            font-weight: 500;
+            width: 100px;
+        }
+
+        .answers-table td:last-child {
+            font-family: monospace;
+            font-weight: 600;
+            font-size: 1.05rem;
+        }
+
+        .answer-marked {
+            color: #34d399;
+        }
+
+        .answer-blank {
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        .answer-rejected {
+            color: #f87171;
+            font-weight: 600;
+        }
+
+        .answers-scroll {
+            overflow-y: auto;
+            max-height: 400px;
+        }
+
+        .btn-reset {
+            display: block;
+            width: 100%;
+            padding: 1rem;
+            background: var(--text-primary);
+            color: var(--bg-color);
+            border: none;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 15px rgba(255,255,255,0.1);
+        }
+
+        .btn-reset:hover {
+            transform: translateY(-2px);
+            background: var(--accent);
+            color: white;
+            box-shadow: 0 8px 25px rgba(129, 140, 248, 0.4);
+        }
+
+        /* Options Selector */
+        .options-selector {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+            padding: 1rem 1.5rem;
+            background: rgba(0,0,0,0.25);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+        }
+
+        .options-selector label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 400;
+            white-space: nowrap;
+        }
+
+        .option-btn-group {
+            display: flex;
+            gap: 0;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .option-btn {
+            padding: 0.5rem 1.25rem;
+            background: rgba(255,255,255,0.03);
+            color: var(--text-secondary);
+            border: none;
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-right: 1px solid var(--border-color);
+        }
+
+        .option-btn:last-child {
+            border-right: none;
+        }
+
+        .option-btn:hover {
+            background: rgba(255,255,255,0.08);
+            color: var(--text-primary);
+        }
+
+        .option-btn.active {
+            background: var(--accent);
+            color: white;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .results-grid { grid-template-columns: 1fr; }
+            .container { padding: 2rem 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>OMR Scanner <span style="color: var(--accent)">Pro</span></h1>
+            <p>Intelligent, fast optical mark recognition pipeline.</p>
+        </div>
+
+        <div class="options-selector" id="options-selector">
+            <label>Options per Question:</label>
+            <div class="option-btn-group">
+                <button class="option-btn" data-val="3" onclick="setOptions(3)">3 (A–C)</button>
+                <button class="option-btn active" data-val="4" onclick="setOptions(4)">4 (A–D)</button>
+                <button class="option-btn" data-val="5" onclick="setOptions(5)">5 (A–E)</button>
+            </div>
+        </div>
+
+        <div class="upload-zone" id="drop-zone">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11zM8 15.01l1.41 1.41L11 14.84V19h2v-4.16l1.59 1.59L16 15.01 12.01 11 8 15.01z"/>
+            </svg>
+            <h3>Upload OMR Sheet</h3>
+            <p>Drag and drop image here or click to browse</p>
+            <input type="file" id="file-input" accept="image/jpeg, image/png, image/jpg">
+        </div>
+
+        <div class="loader-container" id="loader">
+            <div class="spinner"></div>
+            <h3>Analyzing Document...</h3>
+            <p style="color: var(--text-secondary); margin-top: 5px; font-size: 0.9rem;">Applying CV pipeline and evaluating template.</p>
+        </div>
+
+        <div class="results-container" id="results-view">
+            <div class="results-grid">
+                <div class="result-image-card">
+                    <div class="card-header">Processed Image</div>
+                    <div class="image-wrapper">
+                        <img id="result-img" src="" alt="Evaluated OMR Sheet">
+                    </div>
+                </div>
+                <div class="data-card">
+                    <div class="card-header">Scan Statistics</div>
+                    <div class="data-list" id="data-list">
+                        <!-- Data populated via JS -->
+                    </div>
+                </div>
+            </div>
+            <div class="answers-card" id="answers-card" style="display:none;">
+                <div class="card-header">Answer Sheet — Question Mapping</div>
+                <div class="answers-scroll">
+                    <table class="answers-table">
+                        <thead>
+                            <tr>
+                                <th>Question</th>
+                                <th>Marked Answer(s)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="answers-tbody">
+                            <!-- Rows populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <button class="btn-reset" id="reset-btn">Scan Another Document</button>
+        </div>
+    </div>
+
+    <script>
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        const loader = document.getElementById('loader');
+        const resultsView = document.getElementById('results-view');
+        const dataList = document.getElementById('data-list');
+        const resultImg = document.getElementById('result-img');
+        const resetBtn = document.getElementById('reset-btn');
+
+        // Drag & Drop handlers
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => dropZone.classList.add('dragover'), false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => dropZone.classList.remove('dragover'), false);
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles(files);
+        });
+
+        dropZone.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', function() {
+            handleFiles(this.files);
+        });
+
+        resetBtn.addEventListener('click', resetUI);
+
+        async function handleFiles(files) {
+            if (files.length === 0) return;
+            const file = files[0];
+            
+            // Validate file type
+            if (!file.type.match('image.*')) {
+                alert('Please upload an image file (JPG, PNG)');
+                return;
+            }
+
+            // Update UI State
+            dropZone.style.display = 'none';
+            document.getElementById('options-selector').style.display = 'none';
+            loader.style.display = 'flex';
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('num_options', selectedOptions);
+
+            try {
+                const response = await fetch('/scan', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const json = await response.json();
+                
+                loader.style.display = 'none';
+                
+                if (json.success) {
+                    renderResults(json.data, json.questions, json.image);
+                } else {
+                    alert('Error Processing Document: ' + json.error);
+                    resetUI();
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Network Error occurred while uploading.');
+                loader.style.display = 'none';
+                resetUI();
+            }
+        }
+
+        function renderResults(dataDict, questionsDict, imageData) {
+            dataList.innerHTML = '';
+            
+            // Set image
+            resultImg.src = imageData || '';
+            
+            // Render scan statistics
+            for (const [key, value] of Object.entries(dataDict)) {
+                const item = document.createElement('div');
+                item.className = 'data-item';
+                item.innerHTML = `
+                    <strong>${key}</strong>
+                    <span>${value === '' || value === null ? '-' : value}</span>
+                `;
+                dataList.appendChild(item);
+            }
+            
+            // Render question-answer table
+            const answersCard = document.getElementById('answers-card');
+            const answersTbody = document.getElementById('answers-tbody');
+            answersTbody.innerHTML = '';
+            
+            if (questionsDict && Object.keys(questionsDict).length > 0) {
+                answersCard.style.display = 'flex';
+                
+                // Sort questions numerically
+                const sortedKeys = Object.keys(questionsDict).sort((a, b) => {
+                    const numA = parseInt(a.replace('Q', ''));
+                    const numB = parseInt(b.replace('Q', ''));
+                    return numA - numB;
+                });
+                
+                for (const qKey of sortedKeys) {
+                    const answer = questionsDict[qKey];
+                    const tr = document.createElement('tr');
+                    const isBlank = answer === '—' || answer === '' || answer === null;
+                    const isRejected = answer && answer.startsWith('Rejected');
+                    let cssClass = 'answer-marked';
+                    let display = answer;
+                    if (isBlank) { cssClass = 'answer-blank'; display = 'Not answered'; }
+                    else if (isRejected) { cssClass = 'answer-rejected'; }
+                    tr.innerHTML = `
+                        <td>${qKey}</td>
+                        <td class="${cssClass}">${display}</td>
+                    `;
+                    answersTbody.appendChild(tr);
+                }
+            } else {
+                answersCard.style.display = 'none';
+            }
+            
+            resultsView.style.display = 'block';
+        }
+
+        let selectedOptions = 4;  // default
+
+        function setOptions(n) {
+            selectedOptions = n;
+            document.querySelectorAll('.option-btn').forEach(btn => {
+                btn.classList.toggle('active', parseInt(btn.dataset.val) === n);
+            });
+        }
+
+        function resetUI() {
+            fileInput.value = '';
+            resultsView.style.display = 'none';
+            dropZone.style.display = 'block';
+            document.getElementById('options-selector').style.display = 'flex';
+            resultImg.src = '';
+            dataList.innerHTML = '';
+            document.getElementById('answers-tbody').innerHTML = '';
+            document.getElementById('answers-card').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
