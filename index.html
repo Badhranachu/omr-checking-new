@@ -323,6 +323,55 @@
             border: 1px solid rgba(148, 163, 184, 0.5);
         }
 
+        .badge.rescan {
+            background-color: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+            border: 1px solid rgba(245, 158, 11, 0.5);
+        }
+
+        .conf-bar-wrap {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            min-width: 90px;
+        }
+        .conf-bar {
+            flex: 1;
+            height: 6px;
+            background: var(--bg-tertiary);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .conf-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.3s;
+        }
+        .conf-bar-fill.high   { background: var(--success); }
+        .conf-bar-fill.medium { background: var(--warning); }
+        .conf-bar-fill.low    { background: var(--danger);  }
+        .conf-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            min-width: 32px;
+        }
+
+        .quality-row {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+        .quality-chip {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            padding: 0.2rem 0.75rem;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        .quality-chip span { color: var(--text-primary); font-weight: 600; }
+
         /* Loader */
         .loader-overlay {
             position: absolute;
@@ -459,11 +508,30 @@
                         <div class="metric-value" id="val-unmarked">-</div>
                         <div class="metric-label">Unmarked</div>
                     </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="val-rescan" style="color: var(--warning);">-</div>
+                        <div class="metric-label">Rescan</div>
+                    </div>
                 </div>
 
-                <div class="metric-card" style="margin-top: -1rem; margin-bottom: 1rem; background-color: var(--bg-secondary);">
-                    <div class="metric-label">Viewport Status</div>
-                    <div class="metric-value" style="font-size: 1.2rem; color: var(--accent);" id="val-viewport">Checking...</div>
+                <!-- Quality metrics row -->
+                <div class="quality-row" id="quality-row"></div>
+
+                <div class="metric-card" style="margin-top: -0.5rem; margin-bottom: 1rem; background-color: var(--bg-secondary);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+                        <div>
+                            <div class="metric-label">Viewport Status</div>
+                            <div class="metric-value" style="font-size: 1.2rem; color: var(--accent);" id="val-viewport">Checking...</div>
+                        </div>
+                        <div style="text-align:right;">
+                            <div class="metric-label">Detection Mode</div>
+                            <div style="font-size:0.9rem; color: var(--text-secondary); font-weight:600;" id="val-mode">-</div>
+                        </div>
+                        <div style="text-align:right;">
+                            <div class="metric-label">Overall Status</div>
+                            <div style="font-size:0.9rem; font-weight:700;" id="val-status">-</div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="content-split">
@@ -478,7 +546,8 @@
                             <thead>
                                 <tr>
                                     <th class="q-number">Q. No</th>
-                                    <th>Detected Answer</th>
+                                    <th>Answer</th>
+                                    <th>Confidence</th>
                                 </tr>
                             </thead>
                             <tbody id="questions-tbody">
@@ -575,7 +644,12 @@
                 if (json.success) {
                     displayResults(json);
                 } else {
-                    showError(json.error || 'Failed to analyze the image.');
+                    let msg = json.error || 'Failed to analyze the image.';
+                    if (json.quality) {
+                        const q = json.quality;
+                        msg += ` | Blur: ${q.blur_score}, Brightness: ${q.brightness}`;
+                    }
+                    showError(msg);
                 }
             } catch (err) {
                 showError('Network error or server unreachable.');
@@ -589,40 +663,90 @@
             emptyState.style.display = 'none';
             resultsView.classList.add('active');
 
-            // Set Image
             document.getElementById('result-img').src = data.image;
 
-            // Set Metrics
-            document.getElementById('val-total').textContent = data.data['Total Bubbles'];
-            document.getElementById('val-marked').textContent = data.data['Marked Bubbles'];
+            // Core metrics
+            document.getElementById('val-total').textContent    = data.data['Total Bubbles'];
+            document.getElementById('val-marked').textContent   = data.data['Marked Bubbles'];
             document.getElementById('val-unmarked').textContent = data.data['Unmarked Bubbles'];
+            document.getElementById('val-rescan').textContent   = data.data['Rescan Required'] ?? 0;
             document.getElementById('val-viewport').textContent = data.data['Viewport Locked'];
+            document.getElementById('val-mode').textContent     = data.data['Detection Mode'] ?? '-';
 
-            // Populate Questions
-            const tbody = document.getElementById('questions-tbody');
+            const statusEl = document.getElementById('val-status');
+            const overall  = data.data['Overall Status'] ?? 'OK';
+            statusEl.textContent = overall;
+            statusEl.style.color = overall === 'OK' ? 'var(--success)' : 'var(--warning)';
+
+            // Quality chips
+            const qRow    = document.getElementById('quality-row');
+            qRow.innerHTML = '';
+            const q = data.data['Quality'];
+            if (q) {
+                [
+                    ['Blur Score', q.blur_score],
+                    ['Brightness', q.brightness],
+                    ['Resolution', q.resolution],
+                ].forEach(([label, val]) => {
+                    const chip = document.createElement('div');
+                    chip.className = 'quality-chip';
+                    chip.innerHTML = `${label}: <span>${val}</span>`;
+                    qRow.appendChild(chip);
+                });
+            }
+            const lowQ = data.data['Low Confidence Qs'];
+            if (lowQ && lowQ.length) {
+                const chip = document.createElement('div');
+                chip.className = 'quality-chip';
+                chip.style.borderColor = 'rgba(245,158,11,0.5)';
+                chip.innerHTML = `Low-conf questions: <span style="color:var(--warning)">${lowQ.length}</span>`;
+                qRow.appendChild(chip);
+            }
+
+            // Questions table
+            const tbody  = document.getElementById('questions-tbody');
             tbody.innerHTML = '';
 
-            // Sort questions properly (Q1, Q2, ..., Q10, etc instead of string sort)
-            const questionKeys = Object.keys(data.questions).sort((a, b) => {
-                const numA = parseInt(a.replace('Q', ''));
-                const numB = parseInt(b.replace('Q', ''));
-                return numA - numB;
-            });
+            const questionKeys = Object.keys(data.questions).sort((a, b) =>
+                parseInt(a.replace('Q', '')) - parseInt(b.replace('Q', ''))
+            );
 
             questionKeys.forEach(qKey => {
-                const ans = data.questions[qKey];
-                
+                const ans     = data.questions[qKey];
+                const detail  = data.details ? data.details[qKey] : null;
+                const conf    = detail ? detail.confidence : null;
+                const flags   = detail ? detail.flags      : [];
+
                 let badgeClass = 'valid';
-                if (ans.startsWith('Rejected')) {
-                    badgeClass = 'rejected';
-                } else if (ans === '—') {
-                    badgeClass = 'empty';
+                if (ans.startsWith('Rejected'))   badgeClass = 'rejected';
+                else if (ans === '—')             badgeClass = 'empty';
+                else if (ans === 'RESCAN')        badgeClass = 'rescan';
+
+                // Confidence bar
+                let confCell = '<td>—</td>';
+                if (conf !== null && ans !== '—' && ans !== 'RESCAN') {
+                    const pct    = Math.round(conf * 100);
+                    const level  = pct >= 70 ? 'high' : pct >= 40 ? 'medium' : 'low';
+                    confCell = `<td>
+                        <div class="conf-bar-wrap">
+                            <div class="conf-bar">
+                                <div class="conf-bar-fill ${level}" style="width:${pct}%"></div>
+                            </div>
+                            <span class="conf-label">${pct}%</span>
+                        </div>
+                    </td>`;
                 }
 
+                // Highlight low-confidence rows
+                const rowStyle = flags.includes('low_confidence')
+                    ? 'background-color: rgba(245,158,11,0.07);' : '';
+
                 const tr = document.createElement('tr');
+                tr.setAttribute('style', rowStyle);
                 tr.innerHTML = `
                     <td class="q-number">${qKey}</td>
                     <td><span class="badge ${badgeClass}">${ans}</span></td>
+                    ${confCell}
                 `;
                 tbody.appendChild(tr);
             });
